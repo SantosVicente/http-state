@@ -34,7 +34,7 @@ import { Product, getProducts } from "@/data/products";
 import { useState } from "react";
 
 export default function Home() {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const [products, setProducts] = useState<Product[]>([]);
 
   getProducts().then((products) => {
