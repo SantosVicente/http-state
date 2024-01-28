@@ -30,9 +30,16 @@ import {
 import { Search, PlusCircle } from "lucide-react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { Product, getProducts } from "@/data/products";
+import { useState } from "react";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  getProducts().then((products) => {
+    setProducts(products);
+  });
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-4">
@@ -125,13 +132,15 @@ export default function Home() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.from({ length: 10 }).map((_, i) => (
+            {products.map((product, i) => (
               <TableRow key={i}>
-                <TableCell>863f0af5-6091-4790-97a4-2447ed24320{i}</TableCell>
-                <TableCell>Produto {i}</TableCell>
+                <TableCell>{product.id}</TableCell>
+                <TableCell>{product.name}</TableCell>
                 <TableCell>
-                  R$ {i < 0 ? 1 : i + 1}
-                  {9 - i < 0 ? 0 : 9 - i}0,99
+                  {product.price.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
                 </TableCell>
               </TableRow>
             ))}
