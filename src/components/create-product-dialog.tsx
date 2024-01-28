@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Product, createProduct } from "@/data/products";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 const createProductSchema = z.object({
   name: z.string().min(1),
@@ -25,10 +26,14 @@ type CreateProductSchema = z.infer<typeof createProductSchema>;
 
 export function CreateProductDialog() {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
 
   const { register, handleSubmit } = useForm<CreateProductSchema>({
     resolver: zodResolver(createProductSchema),
   });
+
+  const id = searchParams.get("id");
+  const name = searchParams.get("name");
 
   const { mutateAsync: createProductFn } = useMutation({
     mutationKey: ["create-product"],
@@ -36,9 +41,11 @@ export function CreateProductDialog() {
     onSuccess(_, variables) {
       const cachedProducts = queryClient.getQueryData([
         "products",
+        id,
+        name,
       ]) as Product[];
 
-      queryClient.setQueryData(["products"], (old: Product[]) => {
+      queryClient.setQueryData(["products", id, name], (old: Product[]) => {
         console.log(old);
         return [
           ...old,
