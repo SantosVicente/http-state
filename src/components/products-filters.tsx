@@ -4,7 +4,12 @@ import { Input } from "./ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+let useSearchParams: () => URLSearchParams;
+if (typeof window !== "undefined") {
+  ({ useSearchParams } = require("next/navigation"));
+}
 
 const productsFilterSchema = z.object({
   id: z.string().optional(),
@@ -16,7 +21,10 @@ type ProductsFilterSchema = z.infer<typeof productsFilterSchema>;
 export function ProductsFilter() {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams
+    ? // eslint-disable-next-line react-hooks/rules-of-hooks
+      useSearchParams()
+    : new URLSearchParams();
 
   const id = searchParams.get("id");
   const name = searchParams.get("name");

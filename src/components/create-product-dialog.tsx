@@ -15,7 +15,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Product, createProduct } from "@/data/products";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+
+let useSearchParams: () => URLSearchParams;
+if (typeof window !== "undefined") {
+  ({ useSearchParams } = require("next/navigation"));
+}
 
 const createProductSchema = z.object({
   name: z.string().min(1),
@@ -26,7 +30,10 @@ type CreateProductSchema = z.infer<typeof createProductSchema>;
 
 export function CreateProductDialog() {
   const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams
+    ? // eslint-disable-next-line react-hooks/rules-of-hooks
+      useSearchParams()
+    : new URLSearchParams();
 
   const { register, handleSubmit } = useForm<CreateProductSchema>({
     resolver: zodResolver(createProductSchema),
