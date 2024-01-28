@@ -24,11 +24,21 @@ import { getProducts } from "@/data/products";
 import { useQuery } from "@tanstack/react-query";
 import { ProductsFilter } from "./products-filters";
 import { CreateProductDialog } from "./create-product-dialog";
+import { useSearchParams } from "next/navigation";
 
 export default function Dashboard() {
+  const searchParams = useSearchParams();
+
+  const id = searchParams.get("id");
+  const name = searchParams.get("name");
+
   const { data: products } = useQuery({
-    queryKey: ["products"],
-    queryFn: getProducts,
+    queryKey: ["products", id, name],
+    queryFn: () =>
+      getProducts({
+        id,
+        name,
+      }),
   });
 
   const { setTheme } = useTheme();

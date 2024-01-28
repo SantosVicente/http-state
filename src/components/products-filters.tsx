@@ -4,21 +4,35 @@ import { Input } from "./ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const productsFilterSchema = z.object({
-  id: z.string().min(1).optional(),
-  name: z.string().min(1).optional(),
+  id: z.string().optional(),
+  name: z.string().optional(),
 });
 
 type ProductsFilterSchema = z.infer<typeof productsFilterSchema>;
 
 export function ProductsFilter() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const id = searchParams.get("id");
+  const name = searchParams.get("name");
+
   const { register, handleSubmit } = useForm<ProductsFilterSchema>({
     resolver: zodResolver(productsFilterSchema),
   });
 
-  function handleFilterProducts(data: ProductsFilterSchema) {
-    console.log(data);
+  function handleFilterProducts({ id, name }: ProductsFilterSchema) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (id) params.set("id", id);
+    else params.delete("id");
+    if (name) params.set("name", name);
+    else params.delete("name");
+
+    router.push(pathname + "?" + params.toString());
   }
 
   return (
@@ -26,8 +40,16 @@ export function ProductsFilter() {
       onSubmit={handleSubmit(handleFilterProducts)}
       className="flex items-center gap-2"
     >
-      <Input placeholder="ID do produto" {...register("id")} />
-      <Input placeholder="Nome do produto" {...register("name")} />
+      <Input
+        defaultValue={id ?? ""}
+        placeholder="ID do produto"
+        {...register("id")}
+      />
+      <Input
+        defaultValue={name ?? ""}
+        placeholder="Nome do produto"
+        {...register("name")}
+      />
 
       <Button type="submit" className="flex gap-1">
         <Search size={17} />

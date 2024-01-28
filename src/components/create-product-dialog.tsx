@@ -33,27 +33,22 @@ export function CreateProductDialog() {
   const { mutateAsync: createProductFn } = useMutation({
     mutationKey: ["create-product"],
     mutationFn: createProduct,
-    onSuccess(data, variables) {
-      if (data.status === 201) {
-        //const cachedProducts = queryClient.getQueryData([
-        //s  "products",
-        //]) as Product[];
+    onSuccess(_, variables) {
+      const cachedProducts = queryClient.getQueryData([
+        "products",
+      ]) as Product[];
 
-        queryClient.setQueryData(["products"], (old: Product[]) => {
-          return [
-            ...old,
-            {
-              id: crypto.randomUUID(),
-              name: variables.name,
-              price: variables.price,
-            },
-          ];
-        });
-
-        toast(data.msg, {
-          className: "bg-green-500 bg-opacity-90 text-white",
-        });
-      }
+      queryClient.setQueryData(["products"], (old: Product[]) => {
+        console.log(old);
+        return [
+          ...old,
+          {
+            id: cachedProducts.length + 1 + Math.floor(Math.random() * 100),
+            name: variables.name,
+            price: variables.price,
+          },
+        ];
+      });
     },
   });
 
@@ -63,7 +58,12 @@ export function CreateProductDialog() {
         name: data.name,
         price: data.price,
       });
+
+      toast("Produto criado com sucesso!", {
+        className: "bg-green-500 bg-opacity-90 text-white",
+      });
     } catch (error) {
+      console.error(error);
       toast("Erro ao criar produto", {
         description:
           "Sinto muito, ocorreu um erro ao criar o produto. Tente novamente mais tarde.",
